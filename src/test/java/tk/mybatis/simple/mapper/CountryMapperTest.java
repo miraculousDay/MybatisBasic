@@ -6,7 +6,8 @@ import org.apache.ibatis.session.SqlSessionFactory;
 import org.apache.ibatis.session.SqlSessionFactoryBuilder;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import tk.mybatis.simple.model.Country;
+import test.dao.CountryMapper;
+import test.modal.Country;
 
 import java.io.Reader;
 import java.util.List;
@@ -32,5 +33,16 @@ public class CountryMapperTest {
         if (list != null && list.size() > 0) {
             System.out.println("list.size():"+list.size());
         }
+    }
+
+    //TODO  单元测试成功，数据无法入库
+    @Test
+    public void insertCountry() {
+        SqlSession sqlSession = sqlSessionFactory.openSession();
+        CountryMapper mapper = (CountryMapper)sqlSession.getMapper(CountryMapper.class);
+        Country country = new Country();
+        country.setCountrycode("JAN");
+        country.setCountryname("日本");
+        mapper.insert(country);
     }
 }

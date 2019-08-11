@@ -8,7 +8,7 @@
     </settings>
 
     <typeAliases>
-        <package name="tk.mybatis.simple.model"/>
+        <package name="tk.mybatis"/>
     </typeAliases>
 
     <environments default="development">
