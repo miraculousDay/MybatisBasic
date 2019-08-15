@@ -13,9 +13,16 @@
             <property name="addRemarkComments" value="true"/>
         </commentGenerator>
 
-        <jdbcConnection driverClass="com.mysql.jdbc.Driver"
+        <!--<jdbcConnection driverClass="com.mysql.jdbc.Driver"
                         connectionURL="jdbc:mysql://localhost:3306/myData"
                         userId="root"
+                        password="12345678">
+        </jdbcConnection>-->
+
+        <!-- oracle驱动配置 -->
+        <jdbcConnection driverClass="oracle.jdbc.driver.OracleDriver"
+                        connectionURL="jdbc:oracle:thin:@//localhost:1521/orcl"
+                        userId="123456789"
                         password="12345678">
         </jdbcConnection>
 
@@ -28,8 +35,8 @@
         <javaClientGenerator type="XMLMAPPER" targetPackage="test.dao"
                              targetProject="src/main/java"/>
         <!--%  所有表-->
-        <table tableName="country">
-            <generatedKey column="id" sqlStatement="Mysql"/>
+        <table tableName="c_cfg_regional_assessment">
+            <!--<generatedKey column="id" sqlStatement="Mysql"/>-->
         </table>
 
     </context>
