@@ -3,6 +3,7 @@
         PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-config.dtd">
 <configuration>
+    <properties resource="jdbc.properties"></properties>
     <settings>
         <setting name="logImpl" value="LOG4J"/>
     </settings>
@@ -16,17 +17,29 @@
             <transactionManager type="JDBC">
                 <property name="" value=""/>
             </transactionManager>
-            <dataSource type="UNPOOLED">
-                <property name="driver" value="com.mysql.cj.jdbc.Driver"/>
-                <property name="url" value="jdbc:mysql://localhost:3306/myData?useSSL=false"/>
-                <!--?useSSL=false&amp;serverTimezone=UTC&amp;rewriteBatchedStatements=true"/>-->
-                <property name="username" value="root"/>
-                <property name="password" value="12345678"/>
+            <dataSource type="POOLED">
+                <property name="driver" value="${driver}"/>
+                <!--<property name="url" value="jdbc:oracle:thin:@192.9.206.21:1521:orcl"/>-->
+                <property name="url" value="${url}"/>
+                <property name="username" value="${username}"/>
+                <property name="password" value="${password}"/>
             </dataSource>
         </environment>
     </environments>
 
+    <databaseIdProvider type="DB_VENDOR">
+        <property name="MySQL" value="mysql" />
+        <property name="Oracle" value="oracle" />
+    </databaseIdProvider>
+
     <mappers>
-        <mapper resource="tk/mybatis/simple/mapper/CountryMapper.xml"/>
+        <mapper resource="test/xml/CountryMapper.xml"/>
+        <mapper resource="test/xml/SysPrivilegeMapper.xml"/>
+        <mapper resource="test/xml/SysRoleMapper.xml"/>
+        <mapper resource="test/xml/SysUserMapper.xml"/>
+        <mapper resource="test/xml/SysPrivilegeMapper.xml"/>
+        <mapper resource="test/xml/SysUserRoleMapper.xml"/>
+        <mapper resource="test/xml/DeptMapper.xml"/>
+        <mapper resource="test/xml/EmpMapper.xml"/>
     </mappers>
 </configuration>

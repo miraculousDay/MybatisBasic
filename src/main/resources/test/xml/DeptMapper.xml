@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="test.dao.DeptMapper">
+    <select id="findAll"
+            resultMap="deptMap">
+                select * from t_dept
+    </select>
+
+    <resultMap type="test.modal.Dept" id="deptMap">
+        <result property="id" column="deptno"/>
+        <result property="name" column="dname"/>
+        <result property="loc" column="loc"/>
+    </resultMap>
+    <!-- 一对一 使用嵌套查询，在查询一条员工数据时，在调用dept属性时获取部门信息 begin-->
+    <!--  给association传入一个select，通过select配置的值获取指定property的值，需要查询两次sql-->
+    <resultMap type="test.modal.Emp" id="empMap">
+        <association property="dept" column="deptno"
+                     javaType="test.modal.Dept" select="findDept">
+        </association>
+    </resultMap>
+    <!--给association中配置对应属性名称，在查询中配置别名想对应，这样只需查询一次sql-->
+    <select id="findEmpById"
+            parameterType="int"
+            resultMap="empMap">
+
+                select * from t_emp where empno=#{id}
+
+    </select>
+    <select id="findDept"
+            parameterType="java.lang.Integer"
+            resultMap="deptMap">
+                select * from t_dept where deptno=#{deptno}
+    </select>
+    <!-- 一对一 使用嵌套查询，在查询一条员工数据时，在调用dept属性时获取部门信息 end-->
+
+    <!-- 一对一 给association中配置对应属性名称sql begin  -->
+    <resultMap type="test.modal.Emp" id="empMap1">
+        <id property="empno" column="empno"/>
+        <id property="ename" column="ename"/>
+        <id property="job" column="job"/>
+        <id property="mgr" column="mgr"/>
+        <id property="hiredate" column="hiredate"/>
+        <id property="sal" column="sal"/>
+        <id property="comm" column="comm"/>
+        <id property="deptno" column="deptno"/>
+        <association property="dept" javaType="test.modal.Dept">
+            <id column="d_deptno" property="id"/>
+            <result column="dname" property="name"/>
+            <result column="loc" property="loc"/>
+        </association>
+    </resultMap>
+    <select id="findEmpById1"
+            parameterType="int"
+            resultMap="empMap1">
+
+                select e.empno,
+                       e.ename,
+                       e.job,
+                       e.mgr,
+                       e.hiredate,
+                       e.sal,
+                       e.comm,
+                       e.deptno,
+                       d.deptno d_deptno,
+                       d.dname dname,
+                       d.loc loc
+                from t_emp e left join t_dept d on d.deptno = e.deptno
+                where empno=#{id}
+
+    </select>
+    <!-- 一对一 给association中配置对应属性名称sql end  -->
+
+    <!-- 一对多嵌套查询 begin -->
+    <resultMap type="test.modal.Dept" id="deptMap1">
+        <id property="id" column="deptno"/>
+        <result property="name" column="dname"/>
+        <result property="loc" column="loc"/>
+        <collection property="empList" column="deptno"
+                    javaType="java.util.ArrayList"
+                    select="findEmps" ofType="test.modal.Emp">
+        </collection>
+    </resultMap>
+    <select id="findEmps" parameterType="java.lang.Integer" resultType="test.modal.Emp">
+                select * from t_emp where deptno=#{deptno}
+    </select>
+
+    <select id="findDeptById" parameterType="java.lang.Integer" resultMap="deptMap1">
+              select * from t_dept where deptno=#{id}
+    </select>
+
+
+    <resultMap type="test.modal.Dept" id="deptMap2" extends="deptMap">
+        <collection property="empList" javaType="java.util.ArrayList" ofType="test.modal.Emp">
+            <id property="empno" column="empno"/>
+            <result property="ename" column="ename"/>
+            <result property="job" column="job"/>
+            <result property="mgr" column="mgr"/>
+            <result property="hiredate" column="hiredate"/>
+            <result property="sal" column="sal"/>
+            <result property="comm" column="comm"/>
+            <result property="deptno" column="e_deptno"/>
+        </collection>
+    </resultMap>
+    <select id="findDeptById1" parameterType="java.lang.Integer" resultMap="deptMap2">
+              select d.deptno,
+                     d.dname,
+                     d.loc,
+                     e.empno,
+                     e.ename,
+                     e.job,
+                     e.mgr,
+                     e.hiredate,
+                     e.sal,
+                     e.comm,
+                     e.deptno e_deptno
+              from t_dept d left join t_emp e on e.deptno = d.deptno
+              where d.deptno=#{id}
+
+    </select>
+    <!-- 一对多嵌套查询 end -->
+
+    <resultMap id="resultMap1" type="test.modal.Record">
+        <result property="code" column="CODE"/>
+        <result property="name" column="NAME"/>
+        <collection property="records" javaType="java.util.ArrayList" ofType="test.modal.RecordVo">
+            <result property="date" column="DATE"/>
+            <result property="level" column="LEVEL"/>
+        </collection>
+    </resultMap>
+
+    <!-- 测试 -->
+    <select id="getAllRecord" resultType="java.util.Map">
+        SELECT de.INDEX_CODE AS CODE,
+                d.`MONTH`,
+                d.`LEVEL`,
+                de.INDEX_NAME AS NAME
+        from ECONOMIC_INDEX1 de
+        left join forcast_dec d on de.INDEX_CODE = d.INDEX_CODE
+        LEFT JOIN (SELECT d.INDEX_CODE,SUM(case when d.`LEVEL` > 0 then 1 else 0 end) num
+        from forcast_dec d group by d.INDEX_CODE) l on l.INDEX_CODE = d.INDEX_CODE
+        ORDER BY l.num desc,d.`MONTH` desc
+    </select>
+
+    <select id="getAllRecord1" resultMap="resultMap1">
+        SELECT de.INDEX_CODE AS CODE,
+                d.`MONTH` AS DATE,
+                d.`LEVEL`LEVEL,
+                de.INDEX_NAME AS NAME
+        from ECONOMIC_INDEX1 de
+        left join forcast_dec d on de.INDEX_CODE = d.INDEX_CODE
+        LEFT JOIN (SELECT d.INDEX_CODE,SUM(case when d.`LEVEL` > 0 then 1 else 0 end) num
+        from forcast_dec d group by d.INDEX_CODE) l on l.INDEX_CODE = d.INDEX_CODE
+        ORDER BY l.num desc,d.`MONTH` desc
+    </select>
+</mapper>

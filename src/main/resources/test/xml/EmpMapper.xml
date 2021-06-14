@@ -1,0 +1,393 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="test.dao.EmpMapper">
+    <select id="findAll"
+            resultType="test.modal.Emp">
+        select * from t_emp
+    </select>
+
+    <select id="findById"
+            parameterType="integer"
+            resultType="test.modal.Emp">
+        select * from t_emp where empno=#{id}
+    </select>
+
+    <insert id="save"
+            parameterType="test.modal.Emp">
+        insert into t_emp values(
+            #{empno},
+            #{ename},
+            #{job},
+            #{mgr},
+            #{hiredate},
+            #{sal},
+            #{comm},
+            #{deptno}
+        )
+    </insert>
+
+    <update id="update"
+            parameterType="test.modal.Emp">
+        update t_emp set
+            ename=#{ename},
+            job=#{job},
+            mgr=#{mgr},
+            hiredate=#{hiredate},
+            sal=#{sal},
+            comm=#{comm},
+            deptno=#{deptno}
+        where empno=#{empno}
+    </update>
+
+    <delete id="delete"
+            parameterType="integer">
+        delete from t_emp where empno=#{id}
+    </delete>
+
+    <select id="findByDeptNo"
+            parameterType="int"
+            resultType="map">
+        select * from t_emp where deptno=#{deptno}
+    </select>
+
+    <!-- 动态插入sql -->
+    <insert id="dynamicInsert" parameterType="test.modal.Emp">
+        insert into t_emp
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            empno,
+            <if test="ename != null and ename != ''">
+                ename,
+            </if>
+            <if test="job != null">
+                job,
+            </if>
+            <if test="mgr != null and mgr != ''">
+                mgr,
+            </if>
+            <if test="hiredate != null">
+                hiredate,
+            </if>
+            <if test="sal != null">
+                sal,
+            </if>
+            <if test="comm != null">
+                comm,
+            </if>
+            <if test="deptno != null">
+                deptno,
+            </if>
+        </trim>
+        <trim prefix="values(" suffix=")" suffixOverrides=",">
+            #{empno},
+            <if test="ename != null and ename != ''">
+                #{ename},
+            </if>
+            <if test="job != null">
+                #{job},
+            </if>
+            <if test="mgr != null and mgr != ''">
+                #{mgr},
+            </if>
+            <if test="hiredate != null">
+                #{hiredate},
+            </if>
+            <if test="sal != null">
+                #{sal},
+            </if>
+            <if test="comm != null">
+                #{comm},
+            </if>
+            <if test="deptno != null">
+                #{deptno}
+            </if>
+        </trim>
+    </insert>
+    <!-- 批量插入sql1 -->
+    <insert id="batchInsert1" parameterType="java.util.List" databaseId="oracle">
+        insert into t_emp(empno,
+        ename,
+        job,
+        mgr,
+        hiredate,
+        sal,
+        comm,
+        deptno)
+        <foreach collection="list" index="index" item="item" separator="union all">
+            (select
+            #{item.empno},
+            #{item.ename},
+            #{item.job},
+            #{item.mgr},
+            #{item.hiredate},
+            #{item.sal},
+            #{item.comm},
+            #{item.deptno}
+            from dual
+            )
+        </foreach>
+    </insert>
+
+    <insert id="batchInsert1" parameterType="java.util.List" databaseId="mysql">
+        insert into t_emp(empno,
+        ename,
+        job,
+        mgr,
+        hiredate,
+        sal,
+        comm,
+        deptno)
+        values
+        <foreach collection="list" index="index" item="item" separator=",">
+            (
+            #{item.empno},
+            #{item.ename},
+            #{item.job},
+            #{item.mgr},
+            #{item.hiredate},
+            #{item.sal},
+            #{item.comm},
+            #{item.deptno}
+            )
+        </foreach>
+    </insert>
+
+    <!-- 批量插入sql2 -->
+    <insert id="batchInsert2" parameterType="java.util.List" databaseId="oracle">
+        begin
+        <foreach collection="list" index="index" item="item" separator="">
+            insert into t_emp(empno,
+            ename,
+            job,
+            mgr,
+            hiredate,
+            sal,
+            comm,
+            deptno)
+            values
+            (
+            #{item.empno},
+            #{item.ename},
+            #{item.job},
+            #{item.mgr},
+            #{item.hiredate},
+            #{item.sal},
+            #{item.comm},
+            #{item.deptno}
+            );
+        </foreach>
+        end;
+    </insert>
+
+    <!--动态更新1-->
+    <update id="dynamicUpdate1"
+            parameterType="test.modal.Emp">
+        update t_emp
+        <set>
+            <if test="ename != null">
+                ename=#{ename},
+            </if>
+            <if test="job != null">
+                job=#{job},
+            </if>
+            <if test="mgr != null">
+                mgr=#{mgr},
+            </if>
+            <if test="hiredate != null">
+                hiredate=#{mgr},
+            </if>
+            <if test="sal != null">
+                sal=#{sal},
+            </if>
+            <if test="comm != null">
+                comm=#{comm},
+            </if>
+            <if test="deptno != null">
+                deptno=#{deptno}
+            </if>
+        </set>
+        where empno=#{empno}
+    </update>
+    <!--使用trim动态更新2-->
+    <update id="dynamicUpdate2"
+            parameterType="test.modal.Emp">
+        update t_emp
+        <trim prefix="set" suffixOverrides=",">
+            <if test="ename != null">
+                ename=#{ename},
+            </if>
+            <if test="job != null">
+                job=#{job},
+            </if>
+            <if test="mgr != null">
+                mgr=#{mgr},
+            </if>
+            <if test="hiredate != null">
+                hiredate=#{mgr},
+            </if>
+            <if test="sal != null">
+                sal=#{sal},
+            </if>
+            <if test="comm != null">
+                comm=#{comm},
+            </if>
+            <if test="deptno != null">
+                deptno=#{deptno}
+            </if>
+        </trim>
+        where empno=#{empno}
+    </update>
+    <!--批量更新sql-->
+    <update id="batchUpdate" parameterType="java.util.Map">
+        update t_emp
+        <trim prefix="set" suffixOverrides=",">
+            <if test="ename != null">
+                ename=#{ename},
+            </if>
+            <if test="job != null">
+                job=#{job},
+            </if>
+            <if test="mgr != null">
+                mgr=#{mgr},
+            </if>
+            <if test="hiredate != null">
+                hiredate=#{mgr},
+            </if>
+            <if test="sal != null">
+                sal=#{sal},
+            </if>
+            <if test="comm != null">
+                comm=#{comm},
+            </if>
+            <if test="deptno != null">
+                deptno=#{deptno}
+            </if>
+        </trim>
+        <where>
+            empno in
+            <foreach collection="idList" open="(" close=")" separator="," item="item" index="index">
+                #{item}
+            </foreach>
+        </where>
+    </update>
+
+    <update id="batchUpdate1" parameterType="list">
+        update t_emp
+        <trim prefix="set" suffixOverrides=",">
+            <trim prefix="ename = case " suffix="end,">
+                <foreach collection="list" item="item" index="index">
+                    <if test="item.ename != null">
+                        when empno = #{item.empno} then #{item.ename}
+                    </if>
+                </foreach>
+            </trim>
+            <trim prefix="job = case " suffix="end,">
+                <foreach collection="list" index="index" item="item">
+                    <if test="item.job != null">
+                        when empno = #{item.empno} then #{item.job}
+                    </if>
+                </foreach>
+            </trim>
+            <trim prefix="mgr = case " suffix="end,">
+                <foreach collection="list" index="index" item="item">
+                    <if test="item.mgr != null">
+                        when empno = #{item.empno} then #{item.mgr}
+                    </if>
+                </foreach>
+            </trim>
+            <trim prefix="hiredate = case " suffix="end,">
+                <foreach collection="list" index="index" item="item">
+                    <if test="item.hiredate != null">
+                        when empno = #{item.empno} then #{item.hiredate}
+                    </if>
+                </foreach>
+            </trim>
+            <trim prefix="sal = case " suffix="end,">
+                <foreach collection="list" index="index" item="item">
+                    <if test="item.sal != null">
+                        when empno = #{item.empno} then #{item.sal}
+                    </if>
+                </foreach>
+            </trim>
+            <trim prefix="comm = case " suffix="end,">
+                <foreach collection="list" index="index" item="item">
+                    <if test="item.comm != null">
+                        when empno = #{item.empno} then #{item.comm}
+                    </if>
+                </foreach>
+            </trim>
+            <trim prefix="deptno = case " suffix="end,">
+                <foreach collection="list" index="index" item="item">
+                    <if test="item.deptno != null">
+                        when empno = #{item.empno} then #{item.deptno}
+                    </if>
+                </foreach>
+            </trim>
+        </trim>
+        where empno in
+        <foreach collection="list" item="item" index="index" open="(" close=")" separator=",">
+            #{item.empno}
+        </foreach>
+    </update>
+
+    <update id="batchUpdate2" parameterType="list" databaseId="oracle">
+        <foreach collection="list" separator=";" index="index" item="item" open="begin" close=";end;">
+            update t_emp
+            <trim prefix="set" suffixOverrides=",">
+                <if test="item.ename != null">
+                    ename=#{item.ename},
+                </if>
+                <if test="item.job != null">
+                    job=#{item.job},
+                </if>
+                <if test="item.mgr != null">
+                    mgr=#{item.mgr},
+                </if>
+                <if test="item.hiredate != null">
+                    hiredate=#{item.hiredate},
+                </if>
+                <if test="item.sal != null">
+                    sal=#{item.sal},
+                </if>
+                <if test="item.comm != null">
+                    comm=#{item.comm},
+                </if>
+                <if test="item.deptno != null">
+                    deptno=#{item.deptno}
+                </if>
+            </trim>
+            where empno = #{item.empno}
+        </foreach>
+    </update>
+
+    <!--mysql连接上需要增加 allowMultiQueries=true-->
+    <update id="batchUpdate2" parameterType="list" databaseId="mysql">
+        <foreach collection="list" separator=";" index="index" item="item">
+            update t_emp
+            <trim prefix="set" suffixOverrides=",">
+                <if test="item.ename != null">
+                    ename=#{item.ename},
+                </if>
+                <if test="item.job != null">
+                    job=#{item.job},
+                </if>
+                <if test="item.mgr != null">
+                    mgr=#{item.mgr},
+                </if>
+                <if test="item.hiredate != null">
+                    hiredate=#{item.hiredate},
+                </if>
+                <if test="item.sal != null">
+                    sal=#{item.sal},
+                </if>
+                <if test="item.comm != null">
+                    comm=#{item.comm},
+                </if>
+                <if test="item.deptno != null">
+                    deptno=#{item.deptno}
+                </if>
+            </trim>
+            where empno = #{item.empno}
+        </foreach>
+    </update>
+
+</mapper>

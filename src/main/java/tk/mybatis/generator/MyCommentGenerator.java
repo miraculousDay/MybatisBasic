@@ -1,11 +1,7 @@
 package tk.mybatis.generator;
 
-import org.mybatis.generator.config.PropertyRegistry;
 import org.mybatis.generator.internal.DefaultCommentGenerator;
 
-import org.mybatis.generator.internal.util.StringUtility;
-
-import java.text.SimpleDateFormat;
 import java.util.Properties;
 
 /**
